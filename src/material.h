@@ -1,16 +1,21 @@
 #ifndef MATERIAL_H
 #define MATERIAL_H
 
+#include <iostream>
 #include <cmath>
 #include "AGLM.h"
 #include "ray.h"
 #include "hittable.h"
 
+// using namespace glm;
+// using namespace agl;
+// using namespace std;
+
 class material {
 public:
   virtual bool scatter(const ray& r_in, const hit_record& rec, 
      glm::color& attenuation, ray& scattered) const = 0;
-  virtual ~material() {}
+   virtual ~material() {}
 };
 
 class lambertian : public material {
@@ -21,8 +26,22 @@ public:
      glm::color& attenuation, ray& scattered) const override 
   {
      // todo
+      using namespace glm;
+      // vec3 unitn = normalize(rec.normal);
+      // vec3 lightdir = normalize(vec3(5,5,0) - rec.p);
+      // color diffuse = max(vec3(0), dot(unitn, lightdir)) * albedo;
+      // attenuation = diffuse;
+      // return false;
+
+      vec3 scatter_direction = rec.normal + random_unit_vector();
+      if (near_zero(scatter_direction))
+      {
+         scatter_direction = rec.normal;
+      }
+      scattered = ray(rec.p, scatter_direction);
       attenuation = albedo;
-      return false;
+      return true; //bounce
+
   }
 
 public:
@@ -56,9 +75,27 @@ public:
   virtual bool scatter(const ray& r_in, const hit_record& hit, 
      glm::color& attenuation, ray& scattered) const override 
   {
-     // todo
-     attenuation = glm::color(0);
-     return false;
+      using namespace glm;
+      //ambient
+      color ambient = ka*ambientColor;
+      //diffuse
+      vec3 l = lightPos - hit.p; //light vector
+      vec3 unitL = normalize(l); 
+      vec3 unitN = normalize(hit.normal);
+      float scalarLN = dot(unitL, unitN);
+      float max = std::max(0.0f, scalarLN);
+      color diffuse = kd*max*diffuseColor*(1.0f);
+      //specular
+      vec3 r = 2 * dot(unitL, unitN) * unitN - unitL; //reflected ray
+      vec3 unitR = normalize(r);
+      vec3 v = viewPos - hit.p; //view vector
+      vec3 unitV = normalize(v);
+      float cosPhi = dot(unitV, unitR); 
+      float positivePhi = std::max(0.0f, cosPhi);
+      color specular = ks * specColor * std::pow(positivePhi, shininess); //ks*specColor * cosPhi * shininess; creates a bright object
+      //final color               
+      attenuation = ambient + diffuse + specular;
+      return false;
   }
 
 public:
@@ -80,9 +117,13 @@ public:
    virtual bool scatter(const ray& r_in, const hit_record& rec, 
       glm::color& attenuation, ray& scattered) const override 
    {
-     // todo
+      using namespace glm;
+      vec3 unitn = normalize(rec.normal);
+      vec3 rayn = normalize(r_in.direction());
+      vec3 reflected = rayn - 2 * dot(rayn, unitn) * unitn;
+      scattered = ray(rec.p, reflected + fuzz * random_unit_sphere());
       attenuation = albedo;
-      return false;
+      return true;
    }
 
 public:
@@ -97,13 +138,45 @@ public:
   virtual bool scatter(const ray& r_in, const hit_record& rec, 
      glm::color& attenuation, ray& scattered) const override 
    {
-     // todo
-     attenuation = glm::color(0);
-     return false;
+      using namespace glm;
+      float refrationRatio = rec.front_face ? (1.0f / ir) : ir;
+      //normals
+      vec3 unitn = normalize(rec.normal);
+      vec3 rayn = normalize(r_in.direction()); //ray in mornalized
+      //thetha
+      float cosTheta = fmin(dot(-rayn, unitn), 1.0f); 
+      float sinTheta = sqrt(1 - cosTheta*cosTheta);
+      float reflectanceMat = reflectance(cosTheta, refrationRatio);
+      vec3 direction;
+      if(refrationRatio * sinTheta > 1.0f || reflectanceMat > random_float())
+      {
+         vec3 rayn = normalize(r_in.direction());
+         direction = rayn - 2 * dot(rayn, unitn) * unitn;
+      }
+      else
+      {
+         vec3 rPer = refrationRatio * (rayn + cosTheta * unitn); //perpidicular component
+         //perpendicular component of refracted ray
+         float rPerSquare = dot(rPer, rPer); 
+         //parallel component of refracted ray
+         vec3 rPar = -std::sqrt(1 - rPerSquare) * unitn;
+         direction = rPar + rPer;
+      }
+      scattered = ray(rec.p, direction);
+      attenuation = glm::color(1.0f);
+      return true;
    }
 
 public:
   float ir; // Index of Refraction
+private:
+   static float reflectance(float cosine, float ref_idx) {
+            // Use Schlick's approximation for reflectance.
+            auto r0 = (1-ref_idx) / (1+ref_idx);
+            r0 = r0*r0;
+            return r0 + (1-r0)*pow((1 - cosine),5);
+   }
+
 };
 
 

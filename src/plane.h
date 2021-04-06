@@ -10,16 +10,48 @@ public:
    plane(const glm::point3& p, const glm::vec3& normal, 
       std::shared_ptr<material> m) : a(p), n(normal), mat_ptr(m) {};
 
-   virtual bool hit(const ray& r, hit_record& rec) const override
-   {
-      // todo
-      return false;
-   }
+   virtual bool hit(const ray& r, hit_record& rec) const override;
+   
 
 public:
    glm::vec3 a;
    glm::vec3 n;
    std::shared_ptr<material> mat_ptr;
 };
+
+bool plane::hit(const ray& r, hit_record& rec) const
+   {
+      glm::vec3 pNot = r.origin() - a;
+      glm::vec3 p_prime = a - r.origin();
+      glm::vec3 v = r.direction();
+      float t = 0;
+      float valueDV = dot(v, n);
+      if (valueDV == 0)
+      {
+         t = infinity;
+      }
+      else
+      { 
+         if(dot(pNot, n) == 0)
+         {
+            return false;
+         } 
+         float t = dot(p_prime, n)/ valueDV;
+         if (t == 0)
+         {
+            return false;
+         }
+         rec.t = t; // save the time when we hit the object
+         rec.p = r.at(t); // ray.origin + t * ray.direction
+         rec.mat_ptr = mat_ptr; 
+
+         // save normal
+         glm::vec3 outward_normal = n; 
+         rec.set_face_normal(r, outward_normal);
+         return true;
+      }
+      
+      return false;
+   }
 
 #endif

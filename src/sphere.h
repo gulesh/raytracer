@@ -20,22 +20,37 @@ public:
 };
 
 bool sphere::hit(const ray& r, hit_record& rec) const {
-   glm::vec3 oc = r.origin() - center;
-   float a = glm::dot(r.direction(), r.direction());
-   float half_b = glm::dot(oc, r.direction());
-   float c = glm::length2(oc) - radius*radius;
 
-   float discriminant = half_b*half_b - a*c;
-   if (discriminant < 0) return false;
-   float sqrtd = sqrt(discriminant);
+   glm::vec3 el = center - r.origin();
+   float len = length(r.direction());
+   glm::vec3 unitR = r.direction()/len;
 
-   float t = (-half_b - sqrtd) / a;
-   if (t < 0) t = (-half_b + sqrtd) / a;
-   if (t < 0) return false;
+   float s = dot(el, unitR);
+   float elSqr = dot(el, el);
+   float rSqr = radius * radius;
+   if (s < 0 || elSqr < rSqr)
+   {
+      return -1;
+   }
+   float mSqr = elSqr - s*s;
+   if (mSqr > rSqr)
+   {
+      return -1;
+   }
+   float q = sqrt(rSqr - mSqr);
+   float t = 0;
+   if(elSqr > rSqr)
+   {
+      t = s - q;
+   }
+   else
+   {
+      t = s + q;
+   }
 
    // save relevant data in hit record
-   rec.t = t; // save the time when we hit the object
-   rec.p = r.at(t); // ray.origin + t * ray.direction
+   rec.t = t/len; // save the time when we hit the object
+   rec.p = r.at(t/len); // ray.origin + t * ray.direction
    rec.mat_ptr = mat_ptr; 
 
    // save normal
@@ -43,7 +58,34 @@ bool sphere::hit(const ray& r, hit_record& rec) const {
    rec.set_face_normal(r, outward_normal);
 
    return true;
+
+
+   // glm::vec3 oc = r.origin() - center;
+   // float a = glm::dot(r.direction(), r.direction());
+   // float half_b = glm::dot(oc, r.direction());
+   // float c = glm::length2(oc) - radius*radius;
+
+   // float discriminant = half_b*half_b - a*c;
+   // if (discriminant < 0) return false;
+   // float sqrtd = sqrt(discriminant);
+
+   // float t = (-half_b - sqrtd) / a;
+   // if (t < 0) t = (-half_b + sqrtd) / a;
+   
+   // if (t < 0) return false;
+
+   // // save relevant data in hit record
+   // rec.t = t; // save the time when we hit the object
+   // rec.p = r.at(t); // ray.origin + t * ray.direction
+   // rec.mat_ptr = mat_ptr; 
+
+   // // save normal
+   // glm::vec3 outward_normal = normalize(rec.p - center); // compute unit length normal
+   // rec.set_face_normal(r, outward_normal);
+
+   // return true;
 }
+
 
 #endif
 

@@ -144,7 +144,8 @@ int main(int argc, char** argv)
     glBindBuffer(GL_ARRAY_BUFFER, vboId); // as a habit -> always bind before setting data
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLubyte*)NULL);
 
-    agl::ppm_image image(width, height);
+    agl::ppm_image image(640, 360);
+    // agl::ppm_image scene(1280,720);
     ray_trace(image);
     std::cout << "Loaded image: " << image.width() << "x" << image.height() << std::endl;
 

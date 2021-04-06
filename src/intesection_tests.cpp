@@ -37,8 +37,37 @@ void check(bool val, const std::string& message, const hit_record& hit, const ra
 }
 
 void test_sphere(const sphere& s, const ray& r, bool hits, const hit_record& desired) {
+   std::cout << "testing sphere" << std::endl;
    hit_record hit;
    bool result = s.hit(r, hit);
+
+   check(result == hits, "error: ray should hit", hit, r);
+   if (hits) {
+      check(vecEquals(hit.p, desired.p), "error: position incorrect:", hit, r);
+      check(vecEquals(hit.normal, desired.normal), "error: normal incorrect:", hit, r);
+      check(equals(hit.t, desired.t), "error: hit time incorrect", hit, r);
+      check(hit.front_face == desired.front_face, "error: front facing incorrect", hit, r);
+   }
+}
+
+void test_plane(const plane& p, const ray& r, bool hits, const hit_record& desired) {
+   std::cout << "testing planes" << std::endl;
+   hit_record hit;
+   bool result = p.hit(r, hit);
+
+   check(result == hits, "error: ray should hit", hit, r);
+   if (hits) {
+      check(vecEquals(hit.p, desired.p), "error: position incorrect:", hit, r);
+      check(vecEquals(hit.normal, desired.normal), "error: normal incorrect:", hit, r);
+      check(equals(hit.t, desired.t), "error: hit time incorrect", hit, r);
+      check(hit.front_face == desired.front_face, "error: front facing incorrect", hit, r);
+   }
+}
+
+void test_triangles(const triangle& t, const ray& r, bool hits, const hit_record& desired) {
+   std::cout << "testing triangles" << std::endl;
+   hit_record hit;
+   bool result = t.hit(r, hit);
 
    check(result == hits, "error: ray should hit", hit, r);
    if (hits) {
@@ -81,4 +110,21 @@ int main(int argc, char** argv)
                hit_record{vec3(0,0.3432f, 1.9703f), vec3(0,0.1716f, 0.9851f), 0.3432f, true, empty}); 
 
    // TODO: Your tests here
+   plane p = plane(point3(0,0,0), vec3(0,0,1), empty);
+
+   test_plane(p, ray(point3(0,0,2), vec3(0,0,-1)), 
+                     true,                         //ray outside and towards plane. Hits the plane
+                     hit_record{vec3(0,0,0), vec3(0,0,1), 2, true, empty}); 
+
+   // test_plane(p, ray(point3(1,0,0), vec3(-1,0,0)), 
+   //                   true, 
+   //                   hit_record{vec3(0,0,0), vec3(0,0,1), 1, true, empty});
+
+   triangle t = triangle(point3(-2,-2,0), point3(2,-2,0), point3(0, 2, 0), empty);
+
+   test_triangles(t, ray(point3(0,0,2), vec3(0,0,-1)), 
+                     true,                         //ray outside and towards triangle. Hits the triangle
+                     hit_record{vec3(0,0,0), vec3(cross(vec3(4,0,0),vec3(2,4,0))), 2, true, empty}); 
+
+   
 }
