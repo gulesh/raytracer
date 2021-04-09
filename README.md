@@ -91,7 +91,7 @@ from left to right:
 3. Zooming in and out
 
 
-#Unique Images
+# Unique Images
 1. Spheres randomly arranged
 
 <img width="636" alt="Screen Shot 2021-04-09 at 12 00 12 AM" src="https://user-images.githubusercontent.com/60520906/114128609-bc9aa800-98ca-11eb-83af-1ded25636e88.png">
