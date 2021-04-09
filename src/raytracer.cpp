@@ -5,6 +5,8 @@
 #include "AGLM.h"
 #include "ray.h"
 #include "sphere.h"
+#include "plane.h"
+#include "triangle.h"
 #include "camera.h"
 #include "material.h"
 #include "hittable_list.h"
@@ -34,7 +36,7 @@ color ray_color(const ray& r, const hittable_list& world, int depth)
    }
    vec3 unit_direction = normalize(r.direction());
    auto t = 0.5f * (unit_direction.y + 1.0f);
-   return (1.0f - t) * color(1, 1, 1) + t * color(0.5f, 0.7f, 1.0f);
+   return (1.0f - t) * color(1, 0.5, 0) + t * color(0.0f, 0.5f, 1.0f);
 }
 
 color normalize_color(const color& c, int samples_per_pixel)
@@ -52,6 +54,70 @@ color normalize_color(const color& c, int samples_per_pixel)
 
    return color(r, g, b);
 }
+void setBackground(hittable_list& background, vec3& camerapos)
+{
+   // shared_ptr<material> material;
+   shared_ptr<material> darkgray = make_shared<lambertian>(color(0.25, 0.25, 0.25));
+   shared_ptr<material> matteGreen = make_shared<lambertian>(color(0, 0.5f, 0));
+   shared_ptr<material> metalRed = make_shared<metal>(color(0.5, 0.75, 0.1), 0.3f);
+   shared_ptr<material> glass = make_shared<dielectric>(1.5f);
+   shared_ptr<material> phongDefault = make_shared<phong>(camerapos);
+
+   // background.add(make_shared<plane>(point3(0, 0, 0), vec3(0,0,1), metalRed));
+   background.add(make_shared<triangle>(point3(-50 + 0.5, 0, -1), point3(-50 - 0.5, 0, -1), point3(-5, 10, -1), metalRed));
+   // background.add(make_shared<sphere>(point3(0, -105, 0), 100, darkgray));
+   
+}
+
+hittable_list random_scene() {
+    hittable_list worldscene;
+
+    shared_ptr<material> ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+    worldscene.add(make_shared<sphere>(point3(0,-100,0), 100, ground_material));
+
+    for (int a = -3; a < 3; a++) 
+    {
+        for (int b = -3; b < 3; b++) 
+        {
+            float choose_mat = random_float();
+            point3 center(a + 0.9*random_float(), 0.2, b + 0.9*random_float());
+            std::cout << length((center - point3(4, 0.2, 0))) << std::endl;
+
+            if (length((center - point3(4, 0.2, 0))) > 0.9) {
+               shared_ptr<material> sphere_material;
+
+                if (choose_mat < 0.8) {
+                    // diffuse
+                    auto albedo = glm::color(random_float()*random_float());
+                    sphere_material = make_shared<lambertian>(albedo);
+                    worldscene.add(make_shared<sphere>(center, 0.2, sphere_material));
+                } else if (choose_mat < 0.95) {
+                    // metal
+                    auto albedo = glm::color(random_float()*random_float());
+                    float fuzz = random_float(0, 0.5);
+                    sphere_material = make_shared<metal>(albedo, fuzz);
+                    worldscene.add(make_shared<sphere>(center, 0.2, sphere_material));
+                } else {
+                    // glass
+                    sphere_material = make_shared<dielectric>(1.5);
+                    worldscene.add(make_shared<sphere>(center, 0.2, sphere_material));
+                }
+            }
+        }
+    }
+
+    shared_ptr<material> material1 = make_shared<dielectric>(1.5);
+    worldscene.add(make_shared<sphere>(point3(0, 1, 0), 1.0, material1));
+
+    shared_ptr<material> material2 = make_shared<lambertian>(color(0.4, 0.2, 0.1));
+    worldscene.add(make_shared<sphere>(point3(-4, 1, 0), 1.0, material2));
+
+    shared_ptr<material> material3 = make_shared<metal>(color(0.7, 0.6, 0.5), 0.0);
+    worldscene.add(make_shared<sphere>(point3(4, 1, 0), 1.0, material3));
+
+    return worldscene;
+}
+    
 
 void ray_trace(ppm_image& image)
 {
@@ -62,18 +128,39 @@ void ray_trace(ppm_image& image)
    int samples_per_pixel = 10; // higher => more anti-aliasing
    int max_depth = 10; // higher => less shadow acne
 
-   // World
-   shared_ptr<material> gray = make_shared<lambertian>(color(0.5f));
-
-   hittable_list world;
-   world.add(make_shared<sphere>(point3(0, 0, -1), 0.5f, gray));
-   world.add(make_shared<sphere>(point3(0, -100.5, -1), 100, gray));
-
    // Camera
-   vec3 camera_pos(0);
+   vec3 camera_pos(0, 0, 100);
+   point3 lookfrom(0, 100, 100);
+   point3 lookAt(0,0,0);
+   vec3 vyup(0,1,0);
+   float vfov = 1.5;
+   float aperture = 10.0f;
    float viewport_height = 2.0f;
-   float focal_length = 1.0;
-   camera cam(camera_pos, viewport_height, aspect, focal_length);
+   float focal_length = 5.0f;
+   // camera cam(camera_pos, viewport_height, aspect, focal_length);
+   camera cam(lookfrom, lookAt, vyup, vfov, aperture, aspect, focal_length);
+
+   // World
+   hittable_list world = random_scene() ;
+   
+   // shared_ptr<material> darkgray = make_shared<lambertian>(color(0.25, 0.25, 0.25));
+   // shared_ptr<material> matteGreen = make_shared<lambertian>(color(0, 0.5f, 0));
+   // shared_ptr<material> metalRed = make_shared<metal>(color(0, 0, 1), 0.3f);
+   // shared_ptr<material> glass = make_shared<dielectric>(1.5f);
+   // shared_ptr<material> phongDefault = make_shared<phong>(camera_pos);
+
+   
+
+   // // world.add(make_shared<plane>(point3(0, 0, 0), vec3(0,0,1), glass));
+   
+   // world.add(make_shared<triangle>(point3(100, -100, -1), point3( 0, 50, -1), point3(-100, -100, -1), metalRed));
+   // world.add(make_shared<sphere>(point3(100, -100, -1), 20, matteGreen));
+   // world.add(make_shared<sphere>(point3( 0, 50, -1), 20, glass));
+   // world.add(make_shared<sphere>(point3(-100, -100, -1), 20, phongDefault));
+   // // // world.add(make_shared<sphere>(point3(0, 0, 0), 10, phongDefault));
+   // // world.add(make_shared<sphere>(point3(-2.25, 0, -1), 0.5f, phongDefault));
+
+   
 
    // Ray trace
    for (int j = 0; j < height; j++)

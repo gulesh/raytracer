@@ -17,9 +17,27 @@ public:
    glm::point3 center;
    float radius;
    std::shared_ptr<material> mat_ptr;
+
+private:
+ 
+      // static void get_sphere_uv(const glm::point3& p, float& u, float& v) {
+      //    // p: a given point on the sphere of radius one, centered at the origin.
+      //    // u: returned value [0,1] of angle around the Y axis from X=-1.
+      //    // v: returned value [0,1] of angle from Y=-1 to Y=+1.
+      //    //     <1 0 0> yields <0.50 0.50>       <-1  0  0> yields <0.00 0.50>
+      //    //     <0 1 0> yields <0.50 1.00>       < 0 -1  0> yields <0.50 0.00>
+      //    //     <0 0 1> yields <0.25 0.50>       < 0  0 -1> yields <0.75 0.50>
+
+      //    auto theta = acos(-p.y);
+      //    auto phi = atan2(-p.z, p.x) + pi;
+
+      //    u = phi / (2*pi);
+      //    v = theta / pi;
+      // }
 };
 
-bool sphere::hit(const ray& r, hit_record& rec) const {
+bool sphere::hit(const ray& r, hit_record& rec) const 
+{
 
    glm::vec3 el = center - r.origin();
    float len = length(r.direction());
@@ -28,17 +46,17 @@ bool sphere::hit(const ray& r, hit_record& rec) const {
    float s = dot(el, unitR);
    float elSqr = dot(el, el);
    float rSqr = radius * radius;
-   if (s < 0 || elSqr < rSqr)
+   if (s < 0 && elSqr > rSqr)
    {
-      return -1;
+      return false;
    }
    float mSqr = elSqr - s*s;
    if (mSqr > rSqr)
    {
-      return -1;
+      return false;
    }
    float q = sqrt(rSqr - mSqr);
-   float t = 0;
+   float t = -1;
    if(elSqr > rSqr)
    {
       t = s - q;
@@ -50,7 +68,7 @@ bool sphere::hit(const ray& r, hit_record& rec) const {
 
    // save relevant data in hit record
    rec.t = t/len; // save the time when we hit the object
-   rec.p = r.at(t/len); // ray.origin + t * ray.direction
+   rec.p = r.at(rec.t); // ray.origin + t * ray.direction
    rec.mat_ptr = mat_ptr; 
 
    // save normal

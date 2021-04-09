@@ -7,10 +7,6 @@
 #include "ray.h"
 #include "hittable.h"
 
-// using namespace glm;
-// using namespace agl;
-// using namespace std;
-
 class material {
 public:
   virtual bool scatter(const ray& r_in, const hit_record& rec, 
@@ -20,7 +16,7 @@ public:
 
 class lambertian : public material {
 public:
-  lambertian(const glm::color& a) : albedo(a) {}
+   lambertian(const glm::color& a) : albedo(a) {}
 
   virtual bool scatter(const ray& r_in, const hit_record& rec, 
      glm::color& attenuation, ray& scattered) const override 
@@ -39,13 +35,14 @@ public:
          scatter_direction = rec.normal;
       }
       scattered = ray(rec.p, scatter_direction);
+      // attenuation = albedo->value(rec.u, rec.v, rec.p);
       attenuation = albedo;
       return true; //bounce
 
   }
 
 public:
-  glm::color albedo;
+glm::color albedo;
 };
 
 class phong : public material {

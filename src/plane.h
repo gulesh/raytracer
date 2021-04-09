@@ -24,34 +24,49 @@ bool plane::hit(const ray& r, hit_record& rec) const
       glm::vec3 pNot = r.origin() - a;
       glm::vec3 p_prime = a - r.origin();
       glm::vec3 v = r.direction();
-      float t = 0;
+      float t = -1;
       float valueDV = dot(v, n);
-      if (valueDV == 0)
+      if(dot(pNot, n) == 0 && valueDV == 0) //ray is in the plane along with ray direction
       {
-         t = infinity;
-      }
+         return false;
+      } 
       else
-      { 
-         if(dot(pNot, n) == 0)
+      {
+         if(dot(pNot, n) == 0) //ray origin in the plane
          {
-            return false;
-         } 
-         float t = dot(p_prime, n)/ valueDV;
-         if (t == 0)
-         {
-            return false;
+            if (valueDV ==  length(v) * length(n) )
+            {
+               t = 0;
+            }
+            else if(valueDV ==  -1 * length(v) * length(n))
+            {
+               t = 0;
+               
+            } 
          }
-         rec.t = t; // save the time when we hit the object
-         rec.p = r.at(t); // ray.origin + t * ray.direction
-         rec.mat_ptr = mat_ptr; 
+
+         if (valueDV == 0) 
+         {
+            t = infinity;
+         }
+         else
+         { 
+            float t = dot(p_prime, n)/ valueDV;
+            if (t < 0 )
+            {
+               return false;
+            }
+            rec.t = t; // save the time when we hit the object
+            rec.p = r.at(t); // ray.origin + t * ray.direction
+            rec.mat_ptr = mat_ptr; 
 
          // save normal
-         glm::vec3 outward_normal = n; 
-         rec.set_face_normal(r, outward_normal);
-         return true;
+            glm::vec3 outward_normal = n; 
+            rec.set_face_normal(r, outward_normal);
+            return true;
+         }
+         return false;
       }
-      
-      return false;
    }
 
 #endif
