@@ -34,7 +34,8 @@ public:
           float aspect_ratio) 
    {
       float theta = vfov;
-      float h = tan(theta/2);
+      float thetaRadian = (theta * pi) / 180;
+      float h = tan(thetaRadian/2);
       float viewport_height = 2.0 * h;
       float viewport_width = aspect_ratio * viewport_height;
 
@@ -60,7 +61,8 @@ public:
          float focal_length) 
    {
       float theta = vfov;
-      float h = tan(theta/2);
+      float thetaRadian = (theta * pi) / 180;
+      float h = tan(thetaRadian/2);
       float viewport_height = 2.0 * h;
       float viewport_width = aspect_ratio * viewport_height;
 

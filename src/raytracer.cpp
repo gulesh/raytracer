@@ -88,12 +88,12 @@ hittable_list random_scene() {
 
                 if (choose_mat < 0.8) {
                     // diffuse
-                    auto albedo = glm::color(random_float()*random_float());
+                    auto albedo = glm::color(0.6*random_float(0,.5), 0.3 *random_float(0,.5), 0.4 * random_float(0,.5));
                     sphere_material = make_shared<lambertian>(albedo);
                     worldscene.add(make_shared<sphere>(center, 0.2, sphere_material));
                 } else if (choose_mat < 0.95) {
                     // metal
-                    auto albedo = glm::color(random_float()*random_float());
+                    auto albedo = glm::color(0.2*random_float(0,.5), 0.4 *random_float(0,.5), 0.5 * random_float(0,.5));
                     float fuzz = random_float(0, 0.5);
                     sphere_material = make_shared<metal>(albedo, fuzz);
                     worldscene.add(make_shared<sphere>(center, 0.2, sphere_material));
@@ -130,15 +130,16 @@ void ray_trace(ppm_image& image)
 
    // Camera
    vec3 camera_pos(0, 0, 100);
-   point3 lookfrom(0, 100, 100);
+   point3 lookfrom(-40, 10, 30);
    point3 lookAt(0,0,0);
    vec3 vyup(0,1,0);
-   float vfov = 1.5;
+   float vfov = 5;
    float aperture = 10.0f;
    float viewport_height = 2.0f;
    float focal_length = 5.0f;
    // camera cam(camera_pos, viewport_height, aspect, focal_length);
-   camera cam(lookfrom, lookAt, vyup, vfov, aperture, aspect, focal_length);
+   // camera cam(lookfrom, lookAt, vyup, vfov, aperture, aspect, focal_length);
+   camera cam(lookfrom, lookAt, vyup, vfov, aspect);
 
    // World
    hittable_list world = random_scene() ;
