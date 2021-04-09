@@ -88,7 +88,16 @@ from left to right:
 # Unique Features
 1. Changing camera position
 2. Focal blur
-3. Zooming in and out
+4. Zooming in and out
+
+## field of view = 50 degrees:
+
+<img width="639" alt="Screen Shot 2021-04-09 at 1 30 56 PM" src="https://user-images.githubusercontent.com/60520906/114218850-f6ee5e80-9937-11eb-944b-0197b81d9d6b.png">
+
+## field of view = 80 degrees:
+
+<img width="640" alt="Screen Shot 2021-04-09 at 1 32 58 PM" src="https://user-images.githubusercontent.com/60520906/114219019-2735fd00-9938-11eb-93d1-5e9dacbe48ab.png">
+
 
 
 # Unique Images
