@@ -88,7 +88,7 @@ from left to right:
 # Unique Features
 1. Changing camera position:
 
-*The image is a room with three walls and a floor and in the middle is a dinnign table made of spheres* 
+*The image is a room with three walls and a floor and in the middle is seating area made of spheres* 
 (float vfov = 100; float aperture = 10.0f; float viewport_height = 2.0f; float focal_length = 50.0f;)
 
 #Angle-1: point3 lookfrom(0, 100, 100); point3 lookAt(0,0,0); vec3 vyup(0,1,-1);
