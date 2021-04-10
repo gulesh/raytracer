@@ -86,9 +86,32 @@ from left to right:
 <img width="636" alt="Screen Shot 2021-04-09 at 12 26 27 AM" src="https://user-images.githubusercontent.com/60520906/114128441-5ca40180-98ca-11eb-8def-0e13df6db7dd.png">
 
 # Unique Features
-1. Changing camera position
+1. Changing camera position:
+
+*The image is a room with three walls and a floor and in the middle is a dinnign table made of spheres* 
+(float vfov = 100; float aperture = 10.0f; float viewport_height = 2.0f; float focal_length = 50.0f;)
+
+#Angle-1: point3 lookfrom(0, 100, 100); point3 lookAt(0,0,0); vec3 vyup(0,1,-1);
+
+<img width="636" alt="angle-1" src="https://user-images.githubusercontent.com/60520906/114258505-dc969e00-9994-11eb-8fa7-d5a08af351e4.png">
+
+#Angle-2: point3 lookfrom(100, 100, 100); point3 lookAt(10,50,0); vec3 vyup(0,0,-1);
+
+<img width="639" alt="Screen Shot 2021-04-10 at 12 32 58 AM" src="https://user-images.githubusercontent.com/60520906/114258523-ff28b700-9994-11eb-8939-f42a31368d04.png">
+
+#Angle-3:TOP - point3 lookfrom(10, 100, 0); point3 lookAt(0,0,0); vec3 vyup(0,1,-1);
+
+<img width="640" alt="Screen Shot 2021-04-10 at 12 33 47 AM" src="https://user-images.githubusercontent.com/60520906/114258543-254e5700-9995-11eb-9ea3-21fd0385a8fe.png">
+
+#Angle-4:Front - point3 lookfrom(0, 50, 100); point3 lookAt(0,50,0); vec3 vyup(0,1,0);
+
+<img width="637" alt="Screen Shot 2021-04-10 at 12 34 32 AM" src="https://user-images.githubusercontent.com/60520906/114258572-5fb7f400-9995-11eb-9272-ef197030e373.png">
+
 2. Focal blur
-4. Zooming in and out
+<img width="639" alt="Screen Shot 2021-04-10 at 12 58 42 AM" src="https://user-images.githubusercontent.com/60520906/114258906-069d8f80-9998-11eb-9d7d-c4fc89713df1.png">
+<img width="654" alt="Screen Shot 2021-04-10 at 12 59 17 AM" src="https://user-images.githubusercontent.com/60520906/114258907-09988000-9998-11eb-9768-fd3ba1632a5c.png">
+
+3. Zooming in and out
 
 ## field of view = 50 degrees:
 
