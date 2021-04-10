@@ -54,20 +54,7 @@ color normalize_color(const color& c, int samples_per_pixel)
 
    return color(r, g, b);
 }
-void setBackground(hittable_list& background, vec3& camerapos)
-{
-   // shared_ptr<material> material;
-   shared_ptr<material> darkgray = make_shared<lambertian>(color(0.25, 0.25, 0.25));
-   shared_ptr<material> matteGreen = make_shared<lambertian>(color(0, 0.5f, 0));
-   shared_ptr<material> metalRed = make_shared<metal>(color(0.5, 0.75, 0.1), 0.3f);
-   shared_ptr<material> glass = make_shared<dielectric>(1.5f);
-   shared_ptr<material> phongDefault = make_shared<phong>(camerapos);
 
-   // background.add(make_shared<plane>(point3(0, 0, 0), vec3(0,0,1), metalRed));
-   background.add(make_shared<triangle>(point3(-50 + 0.5, 0, -1), point3(-50 - 0.5, 0, -1), point3(-5, 10, -1), metalRed));
-   // background.add(make_shared<sphere>(point3(0, -105, 0), 100, darkgray));
-   
-}
 
 hittable_list random_scene() {
     hittable_list worldscene;
@@ -128,38 +115,102 @@ void ray_trace(ppm_image& image)
    int samples_per_pixel = 10; // higher => more anti-aliasing
    int max_depth = 10; // higher => less shadow acne
 
+// UNIQUE Scene case
    // Camera
-   vec3 camera_pos(0, 0, 100);
-   point3 lookfrom(-40, 10, 30);
-   point3 lookAt(0,0,0);
-   vec3 vyup(0,1,0);
-   float vfov = 5;
-   float aperture = 10.0f;
-   float viewport_height = 2.0f;
-   float focal_length = 5.0f;
-   // camera cam(camera_pos, viewport_height, aspect, focal_length);
-   // camera cam(lookfrom, lookAt, vyup, vfov, aperture, aspect, focal_length);
-   camera cam(lookfrom, lookAt, vyup, vfov, aspect);
-
+   // point3 lookfrom(-40, 10, 30);
+   // point3 lookAt(0,0,0);
+   // vec3 vyup(0,1,0);
+   // float vfov = 5;
+   // float aperture = 10.0f;
+   // float viewport_height = 2.0f;
+   // float focal_length = 5.0f;
+   
+   
+   // camera cam(lookfrom, lookAt, vyup, vfov, aspect);
    // World
-   hittable_list world = random_scene() ;
+   // hittable_list world = random_scene() ;
+
+//below is a different image which is used to test blur and zoom
+
+
+   vec3 camera_pos(0, 50, 300);
+   point3 lookfrom(0, 50, 100); //angle-4 Front
+   point3 lookAt(0,50,0);
+   vec3 vyup(0,1,0);
    
-   // shared_ptr<material> darkgray = make_shared<lambertian>(color(0.25, 0.25, 0.25));
-   // shared_ptr<material> matteGreen = make_shared<lambertian>(color(0, 0.5f, 0));
-   // shared_ptr<material> metalRed = make_shared<metal>(color(0, 0, 1), 0.3f);
-   // shared_ptr<material> glass = make_shared<dielectric>(1.5f);
-   // shared_ptr<material> phongDefault = make_shared<phong>(camera_pos);
+   // point3 lookfrom(10, 100, 0); // angle -3 TOP
+   // point3 lookAt(0,0,0);
+   // vec3 vyup(0,1,-1);
+   
+   // point3 lookfrom(100, 100, 100);  angle-2
+   // point3 lookAt(0,0,0);
+   // vec3 vyup(0,1,-1);
+
+   // point3 lookfrom(0, 100, 100); //angle-1
+   // point3 lookAt(0,0,0);
+   // vec3 vyup(0,1,-1);
+
+   float vfov = 120;
+   float aperture = 1.0f;
+   float viewport_height = 5.0f;
+   float focal_length = 50.0f;
+   //float focal_length = length(lookAt - lookfrom);
+
+   camera cam(lookfrom, lookAt, vyup, vfov, aspect);
+   // camera cam(lookfrom, lookAt, vyup, vfov, aperture, aspect, focal_length); //focal blur camera 
+  
+
+   //world
+   hittable_list world;
+   
+   shared_ptr<material> red = make_shared<metal>(color(1, 0.2, 0.2), 0.1f);
+   shared_ptr<material> green = make_shared<metal>(color(0.2, 1, 0.2), 0.1f);
+   shared_ptr<material> blue = make_shared<metal>(color(0.2, 0.2, 1),0.1f);
+   shared_ptr<material> yellow = make_shared<metal>(color(0.6, 0.6, 0), 0.0f);
+   shared_ptr<material> material1 = make_shared<lambertian>(color(0.4, 0.0, 0.7));
+   shared_ptr<material> darkgray = make_shared<lambertian>(color(0.25, 0.25, 0.25));
+   shared_ptr<material> material2 = make_shared<lambertian>(color(0.0, 0.5f, 1.0f));
+   shared_ptr<material> metal1 = make_shared<metal>(color(0, 0.5, 0.5), 0.3f);
+   shared_ptr<material> metal2 = make_shared<metal>(color(1, 0.1, 0.5), 0.2f);
+   shared_ptr<material> glass1 = make_shared<dielectric>(1.5f);
+   shared_ptr<material> glass2 = make_shared<dielectric>(1.7f);
+   shared_ptr<material> glass = make_shared<dielectric>(1.0f);
+   shared_ptr<material> phongDefault = make_shared<phong>(camera_pos);
+
+   //setting the background
+   shared_ptr<material> phongDefaultBackWall = make_shared<phong>(color(0,1,1), color(1,0,1), color(.01f, .01f, .01f), point3(5,5,0), vec3(0,200,-99),0.45, 0.45, 0.1, 10 ); //used for back wall
+   shared_ptr<material> phongDefault2 = make_shared<phong>(color(0.6, 0.6, 0), color(0.4, 0.0, 0.7), color(.01f, .01f, .01f), point3(0,100,0), lookfrom, 0.5, 0.6, 0.3, 20);
+   shared_ptr<material> phongDefaultFloor = make_shared<phong>(color(0.8, 0.8, 0.8), color(0.6, 0.4, 0.7), color(.01f, .01f, .01f), point3(0,50,0), lookfrom, 0.3, 0.2, 0.5, 50);
+   shared_ptr<material> phongDefaultLeftWall = make_shared<phong>(color(0.8, 0.8, 0.8), color(0.6, 0.4, 0.7), color(.01f, .01f, .01f), point3(-199,100,0), lookfrom, 0.3, 0.2, 0.5, 50);
+   shared_ptr<material> phongDefaultRightWall = make_shared<phong>(color(0.8, 0.8, 0.8), color(0.6, 0.4, 0.7), color(.01f, .01f, .01f), point3(199,100,0), lookfrom, 0.3, 0.2, 0.5, 50);
+
+
+   world.add(make_shared<plane>(point3(0, 0, 0), vec3(0,1,0), phongDefaultFloor)); //floor plane
+   world.add(make_shared<plane>(point3(200, 0, 0), vec3(-1,0,0), phongDefaultRightWall)); //righ wall plane
+   world.add(make_shared<plane>(point3(-200, 0, 0), vec3(1,0,0), phongDefaultLeftWall)); //left wall plane
+   world.add(make_shared<plane>(point3(0, 0, -100), vec3(0,0,1), phongDefaultBackWall)); //back wall
+
+   // world.add(make_shared<triangle>(point3(100, -100, -100), point3( 0, 50, -100), point3(-100, -100, -100), phongDefault));
+   // world.add(make_shared<triangle>(point3(100, -100, -100), point3( 0, 50, -100), point3(-100, -100, -100), phongDefault));
+   world.add(make_shared<sphere>(point3(0, 0, 0), 50, glass1));
+   world.add(make_shared<sphere>(point3(0, 20, 80), 20, red));
+   world.add(make_shared<sphere>(point3(0, 20, -80), 20, green));
+   world.add(make_shared<sphere>(point3(80, 20, 0), 20, blue));
+   world.add(make_shared<sphere>(point3(-80, 20, 0), 20, yellow));
+   // world.add(make_shared<sphere>(point3(-70, 30, 0), 30, metal1));
+   // world.add(make_shared<triangle>(point3(50, 50, 50), point3( -50, 50, 0), point3(50, 50, -50), metal2));
+   // world.add(make_shared<triangle>(point3(100, -100, -20), point3( 0, 50, -20), point3(-100, -100, -20), phongDefault));
+   // world.add(make_shared<triangle>(point3(200, -100, -100), point3( 100, 50, -100), point3(100, -100, -100), metal1));
+   // world.add(make_shared<triangle>(point3(100, -100, -100), point3( 0, -130, -100), point3(-100, -100, -100), phongDefault));
+
+   // world.add(make_shared<triangle>(point3(-100, 100, 1), point3( 0, -50, 1), point3(100, 0, 1), material2));
+   // world.add(make_shared<triangle>(point3(-100, 100, 1), point3( 0, 50, 1), point3(100, 100, 1), metal2));
+   // world.add(make_shared<triangle>(point3(-100, 100, 1), point3( 0, 130, 1), point3(100, 100, 1), phongDefault));
 
    
-
-   // // world.add(make_shared<plane>(point3(0, 0, 0), vec3(0,0,1), glass));
    
-   // world.add(make_shared<triangle>(point3(100, -100, -1), point3( 0, 50, -1), point3(-100, -100, -1), metalRed));
-   // world.add(make_shared<sphere>(point3(100, -100, -1), 20, matteGreen));
-   // world.add(make_shared<sphere>(point3( 0, 50, -1), 20, glass));
-   // world.add(make_shared<sphere>(point3(-100, -100, -1), 20, phongDefault));
-   // // // world.add(make_shared<sphere>(point3(0, 0, 0), 10, phongDefault));
-   // // world.add(make_shared<sphere>(point3(-2.25, 0, -1), 0.5f, phongDefault));
+
+
 
    
 
@@ -183,4 +234,5 @@ void ray_trace(ppm_image& image)
    }
 
    image.save("raytracer.png");
+   
 }

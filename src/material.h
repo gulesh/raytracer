@@ -37,14 +37,15 @@ public:
       scattered = ray(rec.p, scatter_direction);
       // attenuation = albedo->value(rec.u, rec.v, rec.p);
       attenuation = albedo;
-      return true; //bounce
+      return false; //bounce
 
   }
 
 public:
 glm::color albedo;
 };
-
+//diffuseColor(0,0,1), 
+   //   specColor(1,1,1),
 class phong : public material {
 public:
   phong(const glm::vec3& view) :

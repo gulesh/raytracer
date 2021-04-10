@@ -79,3 +79,6 @@ void ppm_image::set_vec3(int i, int j, const vec3 & c)
    myData[idx].g = (unsigned char) (c[1] * 255.999);
    myData[idx].b = (unsigned char) (c[2] * 255.999);
 }
+
+
+

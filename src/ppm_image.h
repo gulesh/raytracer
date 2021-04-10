@@ -50,6 +50,7 @@ namespace agl
 
         // Get a vec3 color 
         glm::vec3 get_vec3(int row, int col) const;
+        
 
     private:
         ppm_pixel* myData;
